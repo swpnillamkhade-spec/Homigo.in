@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homigo Services - Professional Home Services</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(to bottom right, #f8fafc, #ffffff, #f0f9ff);
+            color: #0f172a;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <!-- React & Babel from CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Lucide Icons from CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Your App -->
+    <script type="text/babel">
+        const { useState } = React;
+        const { Search, MapPin, Star, Calendar, ChevronRight, Home, ChevronDown, Phone, ExternalLink } = lucide;
+
+        // ===== MAIN APP =====
+        export default function HomigoServicesApp() {
+            const [selectedCategory, setSelectedCategory] = useState(null);
+            const [selectedSubcategory, setSelectedSubcategory] = useState(null);
+            const [searchQuery, setSearchQuery] = useState('');
+            const [showBooking, setShowBooking] = useState(false);
+            const [bookingConfirmed, setBookingConfirmed] = useState(false);
+            const [expandedSubs, setExpandedSubs] = useState({});
+            const [orderID, setOrderID] = useState('');
+            
+            const [bookingForm, setBookingForm] = useState({
+                name: '',
+                email: '',
+                phone: '',
+                date: '',
+                address: ''
+            });
+
+            const services = [
+                {
+                    id: 1,
+                    name: 'House Help Service',
+                    icon: '🧹',
+                    color: 'from-purple-500 to-pink-500',
+                    description: 'Professional cleaning and maintenance services',
+                    rating: 4.8,
+                    subcategories: [
+                        { name: 'Bathroom surface cleaning', services: ['Bathroom surface cleaning'] },
+                        { name: 'Kitchen cleaning', services: ['Kitchen cleaning'] },
+                        { name: 'Dusting', services: ['Dusting'] },
+                        { name: 'Sweeping and mopping', services: ['Sweeping and mopping'] }
+                    ]
+                },
+                {
+                    id: 2,
+                    name: 'Installation & Service',
+                    icon: '🔧',
+                    color: 'from-orange-500 to-red-500',
+                    description: 'Professional installation and repair services',
+                    rating: 4.9,
+                    subcategories: [
+                        {
+                            name: 'Plumbing',
+                            services: ['Plumbing repair', 'Leak repair', 'Toilet installation']
+                        },
+                        {
+                            name: 'Electrical',
+                            services: ['Light installation', 'Fan installation', 'Wiring repair']
+                        },
+                        {
+                            name: 'Bathroom',
+                            services: ['Shower repair', 'Sink installation', 'Tile installation']
+                        }
+                    ]
+                }
+            ];
+
+            const filteredServices = services.filter(service =>
+                service.name.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+
+            const handleUpdateForm = (field, value) => {
+                setBookingForm(prev => ({...prev, [field]: value}));
+            };
+
+            const handleConfirmBooking = () => {
+                const newOrderID = 'ORD-' + Math.floor(Math.random() * 9000) + 1000;
+                setOrderID(newOrderID);
+                setShowBooking(false);
+                setBookingConfirmed(true);
+            };
+
+            if (bookingConfirmed) {
+                return (
+                    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-slate-100 flex items-center justify-center p-4">
+                        <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
+                            <div className="text-center">
+                                <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <span className="text-5xl">✓</span>
+                                </div>
+                                <h2 className="text-3xl font-bold text-slate-900 mb-2">Booking Confirmed!</h2>
+                                <p className="text-slate-600 mb-6">Your service order has been received.</p>
+                                
+                                <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 mb-6 text-left">
+                                    <p className="text-sm text-slate-600 font-semibold mb-2">Order ID</p>
+                                    <p className="text-2xl font-bold text-blue-600">{orderID}</p>
+                                    <div className="space-y-2 text-xs text-slate-600 mt-4 border-t pt-3">
+                                        <p><strong>Name:</strong> {bookingForm.name}</p>
+                                        <p><strong>📍 Address:</strong> {bookingForm.address}</p>
+                                        <p><strong>📅 Date:</strong> {bookingForm.date}</p>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={() => {
+                                        setBookingConfirmed(false);
+                                        setSelectedCategory(null);
+                                        setSelectedSubcategory(null);
+                                        setBookingForm({ name: '', email: '', phone: '', date: '', address: '' });
+                                    }}
+                                    className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition"
+                                >
+                                    Back to Services
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+                    {/* Header */}
+                    <header className="sticky top-0 z-50 bg-white shadow-sm border-b border-blue-100">
+                        <div className="max-w-7xl mx-auto px-6 py-4">
+                            <div className="flex items-center justify-between mb-6">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-lg flex items-center justify-center">
+                                        <span className="text-white text-xl">H</span>
+                                    </div>
+                                    <h1 className="text-2xl font-bold text-slate-900">Homigo Services</h1>
+                                </div>
+                                <div className="text-sm text-slate-600">Your trusted home services partner</div>
+                            </div>
+
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    placeholder="Search services..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="w-full pl-12 pr-4 py-3 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                                />
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Main Content */}
+                    <main className="max-w-7xl mx-auto px-6 py-12">
+                        {selectedCategory ? (
+                            <div>
+                                <button
+                                    onClick={() => {
+                                        setSelectedCategory(null);
+                                        setSelectedSubcategory(null);
+                                    }}
+                                    className="mb-6 text-blue-600 hover:text-blue-700 font-semibold"
+                                >
+                                    ← Back to Services
+                                </button>
+
+                                {selectedSubcategory ? (
+                                    <div className="bg-white rounded-2xl shadow-lg p-8">
+                                        <button
+                                            onClick={() => setSelectedSubcategory(null)}
+                                            className="mb-6 text-blue-600 hover:text-blue-700 font-semibold"
+                                        >
+                                            ← Back
+                                        </button>
+
+                                        <div className="grid md:grid-cols-3 gap-12">
+                                            <div className="md:col-span-2">
+                                                <h2 className="text-4xl font-bold text-slate-900 mb-4">{selectedSubcategory.name}</h2>
+                                                <div className="flex items-center gap-1 mb-6">
+                                                    {[...Array(5)].map((_, i) => (
+                                                        <span key={i} className="text-yellow-400 text-xl">★</span>
+                                                    ))}
+                                                    <span className="ml-2 font-semibold text-slate-900">{selectedCategory.rating}</span>
+                                                </div>
+
+                                                <div className="bg-slate-50 rounded-xl p-6">
+                                                    <h3 className="text-lg font-bold text-slate-900 mb-4">Services Included</h3>
+                                                    <div className="space-y-3">
+                                                        {selectedSubcategory.services.map((service, idx) => (
+                                                            <div key={idx} className="flex items-start gap-3 text-slate-700">
+                                                                <span className="text-blue-600 font-bold">✓</span>
+                                                                <span>{service}</span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 h-fit">
+                                                <h3 className="text-xl font-bold text-slate-900 mb-4">Ready to Book?</h3>
+                                                <button
+                                                    onClick={() => setShowBooking(true)}
+                                                    className="w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white py-3 rounded-lg font-bold hover:shadow-lg transition"
+                                                >
+                                                    📅 Book Service Now
+                                                </button>
+                                                <p className="text-sm text-slate-700 mt-4">Response time: 2 hours</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="bg-white rounded-2xl shadow-lg p-8">
+                                        <h2 className="text-4xl font-bold text-slate-900 mb-2">{selectedCategory.name}</h2>
+                                        <p className="text-slate-600 text-lg mb-8">{selectedCategory.description}</p>
+
+                                        <div className="space-y-3">
+                                            {selectedCategory.subcategories.map((sub, idx) => (
+                                                <button
+                                                    key={idx}
+                                                    onClick={() => setSelectedSubcategory(sub)}
+                                                    className="w-full p-4 text-left bg-slate-50 hover:bg-blue-50 rounded-lg border border-slate-200 transition flex items-center justify-between"
+                                                >
+                                                    <span className="font-semibold text-slate-900">{sub.name}</span>
+                                                    <span className="text-blue-600">→</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div>
+                                <h2 className="text-3xl font-bold text-slate-900 mb-8">Our Services</h2>
+
+                                {filteredServices.length === 0 ? (
+                                    <div className="text-center py-12">
+                                        <p className="text-slate-600 text-lg">No services found.</p>
+                                    </div>
+                                ) : (
+                                    <div className="grid md:grid-cols-2 gap-8">
+                                        {filteredServices.map((service) => (
+                                            <button
+                                                key={service.id}
+                                                onClick={() => setSelectedCategory(service)}
+                                                className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition overflow-hidden group border border-slate-200"
+                                            >
+                                                <div className={`h-56 bg-gradient-to-br ${service.color} flex items-center justify-center text-8xl`}>
+                                                    {service.icon}
+                                                </div>
+
+                                                <div className="p-6">
+                                                    <h3 className="text-2xl font-bold text-slate-900 mb-2 group-hover:text-blue-600">{service.name}</h3>
+                                                    <p className="text-slate-600 text-sm mb-4">{service.description}</p>
+                                                    <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+                                                        <div className="flex items-center gap-1">
+                                                            <span className="text-yellow-400">★</span>
+                                                            <span className="font-semibold text-slate-900">{service.rating}</span>
+                                                        </div>
+                                                        <span className="text-blue-600">→</span>
+                                                    </div>
+                                                </div>
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </main>
+
+                    {/* Booking Modal */}
+                    {showBooking && (
+                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
+                                <h2 className="text-2xl font-bold text-slate-900 mb-6">Book Service</h2>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-semibold text-slate-900 mb-2">Name</label>
+                                        <input 
+                                            type="text" 
+                                            value={bookingForm.name}
+                                            onChange={(e) => handleUpdateForm('name', e.target.value)}
+                                            className="w-full px-4 py-2 border border-slate-200 rounded-lg"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-slate-900 mb-2">Email</label>
+                                        <input 
+                                            type="email"
+                                            value={bookingForm.email}
+                                            onChange={(e) => handleUpdateForm('email', e.target.value)}
+                                            className="w-full px-4 py-2 border border-slate-200 rounded-lg"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-slate-900 mb-2">Phone</label>
+                                        <input 
+                                            type="tel"
+                                            value={bookingForm.phone}
+                                            onChange={(e) => handleUpdateForm('phone', e.target.value)}
+                                            className="w-full px-4 py-2 border border-slate-200 rounded-lg"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-slate-900 mb-2">Date</label>
+                                        <input 
+                                            type="date"
+                                            value={bookingForm.date}
+                                            onChange={(e) => handleUpdateForm('date', e.target.value)}
+                                            className="w-full px-4 py-2 border border-slate-200 rounded-lg"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-slate-900 mb-2">📍 Address</label>
+                                        <input 
+                                            type="text"
+                                            value={bookingForm.address}
+                                            onChange={(e) => handleUpdateForm('address', e.target.value)}
+                                            className="w-full px-4 py-2 border border-slate-200 rounded-lg"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-3 pt-6 mt-6 border-t border-slate-200">
+                                    <button
+                                        onClick={() => setShowBooking(false)}
+                                        className="flex-1 px-4 py-2 border border-slate-300 rounded-lg font-semibold text-slate-900 hover:bg-slate-50"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleConfirmBooking}
+                                        className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg font-semibold"
+                                    >
+                                        Confirm
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // Render the app
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<HomigoServicesApp />);
+    </script>
+</body>
+</html>
